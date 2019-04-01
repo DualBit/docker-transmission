@@ -20,7 +20,13 @@ RUN \
 	transmission-cli \
 	transmission-daemon \
 	unrar \
-	unzip && \
+	unzip \
+	ca-certificates \
+	make \
+	bash \
+	build-base \
+	ruby \
+	ruby-dev && \
  echo "**** install third party themes ****" && \
  curl -o \
 	/tmp/combustion.zip -L \
@@ -38,6 +44,8 @@ RUN \
 	/tmp/twc.tar.gz -C \
 	/tmp/twctemp --strip-components=1 && \
  mv /tmp/twctemp/src /transmission-web-control && \
+ echo "**** install houston gem ****" && \
+ gem install houston && \
  echo "**** cleanup ****" && \
  rm -rf \
 	/tmp/*
