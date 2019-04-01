@@ -26,7 +26,8 @@ RUN \
 	bash \
 	build-base \
 	ruby \
-	ruby-dev && \
+	ruby-dev \
+	ruby-rdoc && \
  echo "**** install third party themes ****" && \
  curl -o \
 	/tmp/combustion.zip -L \
