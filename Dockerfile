@@ -1,4 +1,4 @@
-FROM lsiobase/alpine:3.9
+FROM lsiobase/alpine:3.10
 
 # set version label
 ARG BUILD_DATE
@@ -45,6 +45,13 @@ RUN \
 	/tmp/twc.tar.gz -C \
 	/tmp/twctemp --strip-components=1 && \
  mv /tmp/twctemp/src /transmission-web-control && \
+ mkdir -p /kettu && \
+ curl -o \
+	/tmp/kettu.tar.gz -L \
+	"https://github.com/endor/kettu/archive/master.tar.gz" && \
+ tar xf \
+	/tmp/kettu.tar.gz -C \
+	/kettu --strip-components=1 && \
  echo "**** install houston gem ****" && \
  gem install houston && \
  echo "**** cleanup ****" && \
