@@ -41,6 +41,10 @@ cap_add_param: false
 opt_param_usage_include_env: true
 opt_param_env_vars:
   - { env_var: "TRANSMISSION_WEB_HOME", env_value: "/combustion-release/", desc: "Specify an alternative UI options are `/combustion-release/`, `/transmission-web-control/`, and `/kettu/` ." }
+  - { env_var: "USER", env_value: "username", desc: "Specify an optional username for the interface" }
+  - { env_var: "PASS", env_value: "password", desc: "Specify an optional password for the interface" }
+  - { env_var: "WHITELIST", env_value: "iplist", desc: "Specify an optional list of comma separated ip whitelist. Fill rpc-whitelist setting."}
+  - { env_var: "HOST_WHITELIST", env_value: "dnsnane list", desc: "Specify an optional list of comma separated dns name whitelist. Fill rpc-host-whitelist setting."}
 opt_param_usage_include_vols: false
 opt_param_usage_include_ports: false
 opt_param_device_map: false
@@ -52,23 +56,11 @@ app_setup_block_enabled: true
 app_setup_block: |
   Webui is on port 9091, the settings.json file in /config has extra settings not available in the webui. Stop the container before editing it or any changes won't be saved.
 
-  For users pulling an update and unable to access the webui setting you may need to set "rpc-host-whitelist-enabled": false, in /config/settings.json`
-
   If you choose to use transmission-web-control as your default UI, just note that the origional Web UI will not be available to you despite the button being present.
 
   ## Securing the webui with a username/password.
 
-  this requires 3 settings to be changed in the settings.json file.
-
-  `Make sure the container is stopped before editing these settings.`
-
-  `"rpc-authentication-required": true,` - check this, the default is false, change to true.
-
-  `"rpc-username": "transmission",` substitute transmission for your chosen user name, this is just an example.
-
-  `rpc-password` will be a hash starting with {, replace everything including the { with your chosen password, keeping the quotes.
-
-  Transmission will convert it to a hash when you restart the container after making the above edits.
+  Use the `USER` and `PASS` variables in docker run/create/compose to set authentication. Do not manually edit the `settings.json` to input user/pass, otherwise transmission cannot be stopped cleanly by the s6 supervisor.
 
   ## Updating Blocklists Automatically
 
@@ -77,10 +69,26 @@ app_setup_block: |
   The automatic update is a shell script that downloads a blocklist from the url stored in the settings.json, gunzips it, and restarts the transmission daemon.
 
   The automatic update will run once a day at 3am local server time.
+  
+  ## Using whitelist
+
+  Use `WHITELIST` to enable a list of ip as whitelist. This enable support for `rpc-whitelist`. When `WHITELIST` is empty support for whitelist is disabled.
+
+  Use `HOST_WHITELIST` to enable an list of dns names as host-whitelist. This enable support for `rpc-host-whitelist`. When `HOST_WHITELIST` is empty support for host-whitelist is disabled.
 
 # changelog
 changelogs:
 
+  - { date: "23.01.21:", desc: "Rebasing to alpine 3.13." }
+  - { date: "02.11.20:", desc: "Add ca-certificates package to allow connecting to https trackers." }
+  - { date: "02.06.20:", desc: "Rebase to alpine 3.12, update to transmission 3.0, remove python2, add python3." }
+  - { date: "11.05.20:", desc: "Remove unnecessary chmod (remnant of previous change)." }
+  - { date: "28.04.20:", desc: "Use transmission-remote to update blocklist." }
+  - { date: "30.03.20:", desc: "Internalize blocklist-update.sh." }
+  - { date: "29.03.20:", desc: "Update auth info in readme." }
+  - { date: "19.12.19:", desc: "Rebasing to alpine 3.11." }
+  - { date: "04.10.19:", desc: "Update package label." }
+  - { date: "21.08.19:", desc: "Add optional user/pass environment variables, fix transmission shut down if user/pass are set." }
   - { date: "19.07.19:", desc: "Send SIGTERM in blocklist update to properly close pid." }
   - { date: "28.06.19:", desc: "Rebasing to alpine 3.10." }
   - { date: "23.03.19:", desc: "Switching to new Base images, shift to arm32v7 tag." }
@@ -103,4 +111,3 @@ changelogs:
   - { date: "09.08.16:", desc: "Rebase to alpine linux." }
   - { date: "06.12.15:", desc: "Separate mapping for watch folder." }
   - { date: "16.11.15:", desc: "Initial Release." }
-

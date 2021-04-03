@@ -1,20 +1,21 @@
-FROM lsiobase/alpine:3.10
+FROM ghcr.io/linuxserver/baseimage-alpine:3.13
 
-# set version label
 ARG BUILD_DATE
 ARG VERSION
+ARG TRANSMISSION_VERSION
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="sparklyballs"
+LABEL maintainer="aptalca"
 
 RUN \
  echo "**** install packages ****" && \
  apk add --no-cache \
+	ca-certificates \
 	curl \
 	findutils \
 	jq \
 	openssl \
 	p7zip \
-	python \
+	python3 \
 	rsync \
 	tar \
 	transmission-cli \
@@ -28,6 +29,14 @@ RUN \
 	ruby \
 	ruby-dev \
 	ruby-rdoc && \
+ echo "**** install transmission ****" && \
+ if [ -z ${TRANSMISSION_VERSION+x} ]; then \
+	TRANSMISSION_VERSION=$(curl -sL "http://dl-cdn.alpinelinux.org/alpine/v3.13/community/x86_64/APKINDEX.tar.gz" | tar -xz -C /tmp \
+	&& awk '/^P:transmission-daemon$/,/V:/' /tmp/APKINDEX | sed -n 2p | sed 's/^V://'); \
+ fi && \
+ apk add --no-cache \
+	transmission-cli==${TRANSMISSION_VERSION} \
+	transmission-daemon==${TRANSMISSION_VERSION} && \
  echo "**** install third party themes ****" && \
  curl -o \
 	/tmp/combustion.zip -L \
